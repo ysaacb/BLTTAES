@@ -19,9 +19,14 @@
 #include "esp_gap_bt_api.h"
 #include "esp_bt_device.h"
 #include "esp_spp_api.h"
-
+#include "driver/gpio.h"
+#include "cmd/cmd.h"
 #include "time.h"
 #include "sys/time.h"
+
+static const char *TAG = "example";
+
+#define BLINK_GPIO 2
 
 #define SPP_TAG "SPP_ACCEPTOR_DEMO"
 #define SPP_SERVER_NAME "SPP_SERVER"
@@ -39,6 +44,15 @@ static long data_num = 0;
 
 static const esp_spp_sec_t sec_mask = ESP_SPP_SEC_AUTHENTICATE;
 static const esp_spp_role_t role_slave = ESP_SPP_ROLE_SLAVE;
+
+
+static void configure_led(void)
+{
+    ESP_LOGI(TAG, "Example configured to blink GPIO LED!");
+    gpio_reset_pin(BLINK_GPIO);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+}
 
 static char *bda2str(uint8_t * bda, char *str, size_t size)
 {
@@ -64,10 +78,18 @@ static void print_speed(void)
     time_old.tv_usec = time_new.tv_usec;
 }
 
+void print_hex(const uint8_t * *s)
+{
+  while(*s)
+    printf(" %02x" , (unsigned int) *s++);
+  printf("\n");
+}
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
     char bda_str[18] = {0};
     char spp_data[256];
+    char cmd_data[256];
+
 
     switch (event) {
     case ESP_SPP_INIT_EVT:
@@ -117,6 +139,12 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
             esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);
             sprintf(spp_data, "Received characters: %d\n "" %s", param->data_ind.len,param->data_ind.data );
             esp_spp_write(param->write.handle, strlen(spp_data), (uint8_t *)spp_data);
+            strncpy( cmd_data, (const char*) param->data_ind.data, param->data_ind.len ); 
+            cmd_data[param->data_ind.len]='\0';
+            esp_log_buffer_hex("", cmd_data,strlen(cmd_data));
+            CmdLineProcess(cmd_data);
+            //print_hex(param->data_ind.data);
+
         }
 #else
         gettimeofday(&time_new, NULL);
@@ -209,6 +237,7 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
 void app_main(void)
 {
     char bda_str[18] = {0};
+    configure_led();
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -279,4 +308,5 @@ void app_main(void)
     esp_bt_gap_set_pin(pin_type, 0, pin_code);
 
     ESP_LOGI(SPP_TAG, "Own address:[%s]", bda2str((uint8_t *)esp_bt_dev_get_address(), bda_str, sizeof(bda_str)));
+    CmdLineProcess("hola");
 }

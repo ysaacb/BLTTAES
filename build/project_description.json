@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "bt_spp_acceptor_demo",
-    "project_version":    "1",
+    "project_version":    "6a4fd5a-dirty",
     "project_path":       "C:/Users/Ysaac Benjamin/BTaccept/bt_spp_acceptor",
     "idf_path":           "C:/Users/Ysaac Benjamin/esp/v5.3.1/esp-idf",
     "build_dir":          "C:/Users/Ysaac Benjamin/BTaccept/bt_spp_acceptor/build",
@@ -1180,7 +1180,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "C:/Users/Ysaac Benjamin/BTaccept/bt_spp_acceptor/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/Ysaac Benjamin/BTaccept/bt_spp_acceptor/main/main.c" ],
+            "sources": [ "C:/Users/Ysaac Benjamin/BTaccept/bt_spp_acceptor/main/main.c", "C:/Users/Ysaac Benjamin/BTaccept/bt_spp_acceptor/main/cmd/cmdline.c", "C:/Users/Ysaac Benjamin/BTaccept/bt_spp_acceptor/main/cmd/cmd.c" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {
